@@ -266,7 +266,6 @@ void GraphicalUI::cb_cubeMapCheckButton(Fl_Widget* o, void* v)
 }
 
 void GraphicalUI::cb_render(Fl_Widget* o, void* v) {
-
 	char buffer[256];
 
 	pUI = (GraphicalUI*)(o->user_data());
