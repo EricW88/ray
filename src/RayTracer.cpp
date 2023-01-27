@@ -105,7 +105,7 @@ glm::dvec3 RayTracer::traceRay(ray& r, const glm::dvec3& thresh, int depth, doub
 		//       Check traceUI->cubeMap() to see if cubeMap is loaded
 		//       and enabled.
 
-		colorC = glm::dvec3(224, 161, 43);
+		colorC = glm::dvec3(0, 0, 0);
 	}
 #if VERBOSE
 	std::cerr << "== depth: " << depth+1 << " done, returning: " << colorC << std::endl;
@@ -222,17 +222,22 @@ void RayTracer::traceImage(int w, int h)
 	// FIXME: Start one or more threads for ray tracing. 
 	// OpenMP is probably best "bang for buck" time spent on this task
 	//
-
-	glm::dvec3 cameraOrigin = getScene().getCamera().getEye();
-	double dummy;
 	for(int i = 0; i < w; i++) {
 		for(int j = 0; j < h; j++) {
-			glm::dvec3 pixelPoint = getPixel(0, 0);
-			glm::dvec3 direction = glm::normalize(pixelPoint - cameraOrigin);
-			ray r = ray(cameraOrigin, direction, glm::dvec3(1, 1, 1));
-			setPixel(i, j, traceRay(r, glm::dvec3(1.0,1.0,1.0), 0, dummy));
+			tracePixel(i, j);
 		}
 	}
+
+	// glm::dvec3 cameraOrigin = getScene().getCamera().getEye();
+	// double dummy;
+	// for(int i = 0; i < w; i++) {
+	// 	for(int j = 0; j < h; j++) {
+	// 		glm::dvec3 pixelPoint = getPixel(0, 0);
+	// 		glm::dvec3 direction = glm::normalize(pixelPoint - cameraOrigin);
+	// 		ray r = ray(cameraOrigin, direction, glm::dvec3(1, 1, 1));
+	// 		setPixel(i, j, traceRay(r, glm::dvec3(1.0,1.0,1.0), 0, dummy));
+	// 	}
+	// }
 
 	// glm::dvec3 test = getPixel(0, 0);
 	// glm::dvec3 direction = glm::normalize(test - cameraOrigin);

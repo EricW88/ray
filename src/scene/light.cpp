@@ -40,7 +40,14 @@ double PointLight::distanceAttenuation(const glm::dvec3& P) const
 	// You'll need to modify this method to attenuate the intensity 
 	// of the light based on the distance between the source and the 
 	// point P.  For now, we assume no attenuation and just return 1.0
-	return 1.0;
+	// std::cout << "point light" << std::endl;
+
+	// double length = glm::length(P - position);
+	// double temp = 1 / (constantTerm + linearTerm * length + quadraticTerm * length * length);
+	// std::cout << temp << " " << length << std::endl;
+	// return 1 / (constantTerm + linearTerm * length + quadraticTerm * length * length);
+	double length = glm::length(P - position);
+	return std::min(1.0, 1 / (constantTerm + linearTerm * length + quadraticTerm * length * length));
 }
 
 glm::dvec3 PointLight::getColor() const
@@ -58,6 +65,7 @@ glm::dvec3 PointLight::shadowAttenuation(const ray& r, const glm::dvec3& p) cons
 {
 	// YOUR CODE HERE:
 	// You should implement shadow-handling code here.
+	
 	return glm::dvec3(1,1,1);
 }
 
