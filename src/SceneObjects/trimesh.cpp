@@ -117,12 +117,12 @@ bool TrimeshFace::intersectLocal(ray& r, isect& i) const
 	// double gamma = glm::length(glm::cross(b_coords - a_coords, q - a_coords)) / area;
 	
 	// if(alpha + beta + gamma != 1 || alpha < 0 || beta < 0 || gamma < 0) {
-	// 	std::cout << a_coords.x << " " << a_coords.y << " " << a_coords.z << std::endl;
-	// 	std::cout << b_coords.x << " " << b_coords.y << " " << b_coords.z << std::endl;
-	// 	std::cout << c_coords.x << " " << c_coords.y << " " << c_coords.z << std::endl;
-	// 	std::cout << q.x << " " << q.y << " " << q.z << std::endl;
+	// 	// std::cout << a_coords.x << " " << a_coords.y << " " << a_coords.z << std::endl;
+	// 	// std::cout << b_coords.x << " " << b_coords.y << " " << b_coords.z << std::endl;
+	// 	// std::cout << c_coords.x << " " << c_coords.y << " " << c_coords.z << std::endl;
+	// 	// std::cout << q.x << " " << q.y << " " << q.z << std::endl;
 	// 	// std::cout << alpha << " " << beta << " " << gamma << " " << area << std::endl;
-	// 	std::cout << "returning false" << std::endl;
+	// 	// std::cout << "returning false" << std::endl;
 	// 	return false;
 	// }
 	// // assert(false);

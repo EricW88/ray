@@ -19,7 +19,15 @@ glm::dvec3 DirectionalLight::shadowAttenuation(const ray& r, const glm::dvec3& p
 {
 	// YOUR CODE HERE:
 	// You should implement shadow-handling code here.
-	return glm::dvec3(1.0, 1.0, 1.0);
+
+	isect i;
+	ray lightRay(p, getDirection(p), glm::dvec3(1, 1, 1));
+	bool result = scene->intersect(lightRay, i);
+	if(!result) {
+		// std::cout << "no object hit" << std::endl;
+		return glm::dvec3(1, 1, 1);
+	}
+	return glm::dvec3(0, 0, 0);
 }
 
 glm::dvec3 DirectionalLight::getColor() const
@@ -66,7 +74,21 @@ glm::dvec3 PointLight::shadowAttenuation(const ray& r, const glm::dvec3& p) cons
 	// YOUR CODE HERE:
 	// You should implement shadow-handling code here.
 	
-	return glm::dvec3(1,1,1);
+	isect i;
+	ray lightRay(p, getDirection(p), glm::dvec3(1, 1, 1));
+	bool result = scene->intersect(lightRay, i);
+	if(!result) {
+		// std::cout << "no object hit" << std::endl;
+		return glm::dvec3(1, 1, 1);
+	}
+
+	double lightDistance = glm::length(position - p);
+	if(i.getT() < lightDistance) {
+		// std::cout << "object behind" << std::endl;
+		return glm::dvec3(0, 0, 0);
+	}
+	// std::cout << "object ahead" << std::endl;
+	return glm::dvec3(1, 1, 1);
 }
 
 #define VERBOSE 0

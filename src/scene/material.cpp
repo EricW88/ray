@@ -49,10 +49,11 @@ glm::dvec3 Material::shade(Scene* scene, const ray& r, const isect& i) const
 	glm::dvec3 color = ke(i) + ka(i) * scene->ambient();
 	glm::dvec3 q = r.at(i.getT());
 	for ( const auto& pLight : scene->getAllLights() ) {
-		// std::cout << "light" << std::endl;
+
 		glm::dvec3 atten = pLight->distanceAttenuation(q) * pLight->shadowAttenuation(r, q);
 		glm::dvec3 diffuse = kd(i) * std::max(glm::dot(pLight->getDirection(q), i.getN()), 0.0);
-		glm::dvec3 reflection = glm::reflect(-pLight->getDirection(q), i.getN());
+		glm::dvec3 incidenceRay = -pLight->getDirection(q);
+		glm::dvec3 reflection = glm::normalize(incidenceRay - 2 * glm::dot(i.getN(), incidenceRay) * i.getN());
 		glm::dvec3 specular = ks(i) * std::pow(std::max(glm::dot(reflection, -r.getDirection()), 0.0), shininess(i));
 		// assert(glm::length(reflection) == 1.0);
 		// glm::dvec3 test =  pLight->getColor() * (diffuse + specular);

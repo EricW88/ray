@@ -35,6 +35,8 @@ iostream
 -
 fstream
 -
+math.h
+-
 
 /u/ericwang/cs354/ray/src/RayTracer.h
 time.h

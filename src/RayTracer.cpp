@@ -19,6 +19,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <math.h>
 
 using namespace std;
 extern TraceUI* traceUI;
@@ -67,6 +68,11 @@ glm::dvec3 RayTracer::tracePixel(int i, int j)
 	return col;
 }
 
+bool tirOccurs(double n_r, glm::dvec3 n, glm::dvec3 i) {
+	return 1 - n_r * n_r * (1 - std::pow(glm::dot(n, i), 2)) < 0;
+
+}
+
 #define VERBOSE 0
 
 // Do recursive ray tracing!  You'll want to insert a lot of code here
@@ -79,6 +85,9 @@ glm::dvec3 RayTracer::traceRay(ray& r, const glm::dvec3& thresh, int depth, doub
 	std::cerr << "== current depth: " << depth << std::endl;
 #endif
 
+	if (depth < 0) {
+		return colorC;
+	}
 	if(scene->intersect(r, i)) {
 		// YOUR CODE HERE
 
@@ -94,7 +103,33 @@ glm::dvec3 RayTracer::traceRay(ray& r, const glm::dvec3& thresh, int depth, doub
 
 
 		const Material& m = i.getMaterial();
+		glm::dvec3 q = r.at(i.getT());
+		glm::dvec3 reflectVec = glm::normalize(r.getDirection() - 2 * glm::dot(i.getN(), r.getDirection()) * i.getN());
+		ray reflectRay(q, reflectVec, glm::dvec3(1, 1, 1));
+		reflectRay.setPosition(reflectRay.at(RAY_EPSILON));
+
 		colorC = m.shade(scene.get(), r, i);
+
+		colorC += m.kr(i) * traceRay(reflectRay, thresh, depth - 1, t);
+
+		glm::dvec3 i_vec = -r.getDirection();
+		double n_i;
+		double n_t;
+		if (glm::dot(i_vec, i.getN()) > 0) {
+			n_i = 1;
+			n_t = m.index(i);
+		} else {
+			n_i = m.index(i);
+			n_t = 1;
+		}
+		double n_r = n_i / n_t;
+		if(glm::length(m.kt(i)) > 0.0 && !tirOccurs(n_r, i.getN(), i_vec)) {
+			glm::dvec3 t_vec = (n_r * glm::dot(i.getN(), i_vec) - sqrt(1 - n_r * n_r * (1 - std::pow(glm::dot(i.getN(), i_vec), 2)))) * i.getN() - n_r * i_vec;
+			t_vec = glm::normalize(t_vec);
+			ray refractRay(q, t_vec, glm::dvec3(1,1,1));
+			colorC += m.kt(i) * traceRay(refractRay, thresh, depth - 1, t);
+		}
+
 	} else {
 		// No intersection.  This ray travels to infinity, so we color
 		// it according to the background color, which in this (simple) case
