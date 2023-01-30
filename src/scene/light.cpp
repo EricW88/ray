@@ -22,12 +22,19 @@ glm::dvec3 DirectionalLight::shadowAttenuation(const ray& r, const glm::dvec3& p
 
 	isect i;
 	ray lightRay(p, getDirection(p), glm::dvec3(1, 1, 1));
+	lightRay.setPosition(lightRay.at(RAY_EPSILON));
 	bool result = scene->intersect(lightRay, i);
-	if(!result) {
+	if(!result || i.getT() < 0) {
 		// std::cout << "no object hit" << std::endl;
 		return glm::dvec3(1, 1, 1);
 	}
-	return glm::dvec3(0, 0, 0);
+	// return glm::dvec3(0, 0, 0);
+	// if(i.getMaterial().Trans()) {
+	// 	return glm::dvec3(1,1,1);
+	// } else {
+	// 	return glm::dvec3(0,0,0);
+	// }
+	return glm::dvec3(0,0,0);
 }
 
 glm::dvec3 DirectionalLight::getColor() const
@@ -76,8 +83,9 @@ glm::dvec3 PointLight::shadowAttenuation(const ray& r, const glm::dvec3& p) cons
 	
 	isect i;
 	ray lightRay(p, getDirection(p), glm::dvec3(1, 1, 1));
+	lightRay.setPosition(lightRay.at(RAY_EPSILON));
 	bool result = scene->intersect(lightRay, i);
-	if(!result) {
+	if(!result || i.getT() < 0) {
 		// std::cout << "no object hit" << std::endl;
 		return glm::dvec3(1, 1, 1);
 	}

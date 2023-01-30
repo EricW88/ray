@@ -104,9 +104,10 @@ glm::dvec3 RayTracer::traceRay(ray& r, const glm::dvec3& thresh, int depth, doub
 
 		const Material& m = i.getMaterial();
 		glm::dvec3 q = r.at(i.getT());
-		glm::dvec3 reflectVec = glm::normalize(r.getDirection() - 2 * glm::dot(i.getN(), r.getDirection()) * i.getN());
-		ray reflectRay(q, reflectVec, glm::dvec3(1, 1, 1));
-		reflectRay.setPosition(reflectRay.at(RAY_EPSILON));
+		glm::dvec3 normalVec = i.getN();
+		glm::dvec3 reflectVec = glm::normalize(r.getDirection() - 2 * glm::dot(normalVec, r.getDirection()) * normalVec);
+		ray reflectRay(q, reflectVec, glm::dvec3(1, 1, 1), ray::REFLECTION);
+		// reflectRay.setPosition(reflectRay.at(RAY_EPSILON));
 
 		colorC = m.shade(scene.get(), r, i);
 
@@ -115,18 +116,19 @@ glm::dvec3 RayTracer::traceRay(ray& r, const glm::dvec3& thresh, int depth, doub
 		glm::dvec3 i_vec = -r.getDirection();
 		double n_i;
 		double n_t;
-		if (glm::dot(i_vec, i.getN()) > 0) {
+		if (glm::dot(i_vec, normalVec) > 0) {
 			n_i = 1;
 			n_t = m.index(i);
 		} else {
 			n_i = m.index(i);
 			n_t = 1;
+			normalVec = -normalVec;
 		}
 		double n_r = n_i / n_t;
-		if(glm::length(m.kt(i)) > 0.0 && !tirOccurs(n_r, i.getN(), i_vec)) {
-			glm::dvec3 t_vec = (n_r * glm::dot(i.getN(), i_vec) - sqrt(1 - n_r * n_r * (1 - std::pow(glm::dot(i.getN(), i_vec), 2)))) * i.getN() - n_r * i_vec;
+		if(glm::length(m.kt(i)) > 0.0 && !tirOccurs(n_r, normalVec, i_vec)) {
+			glm::dvec3 t_vec = (n_r * glm::dot(normalVec, i_vec) - sqrt(1 - n_r * n_r * (1 - std::pow(glm::dot(normalVec, i_vec), 2)))) * normalVec - n_r * i_vec;
 			t_vec = glm::normalize(t_vec);
-			ray refractRay(q, t_vec, glm::dvec3(1,1,1));
+			ray refractRay(q, t_vec, glm::dvec3(1,1,1), ray::REFRACTION);
 			colorC += m.kt(i) * traceRay(refractRay, thresh, depth - 1, t);
 		}
 
@@ -257,11 +259,12 @@ void RayTracer::traceImage(int w, int h)
 	// FIXME: Start one or more threads for ray tracing. 
 	// OpenMP is probably best "bang for buck" time spent on this task
 	//
-	for(int i = 0; i < w; i++) {
-		for(int j = 0; j < h; j++) {
-			tracePixel(i, j);
-		}
-	}
+	// for(int i = 0; i < w; i++) {
+	// 	for(int j = 0; j < h; j++) {
+	// 		tracePixel(i, j);
+	// 	}
+	// }
+	tracePixel(167,348);
 
 	// glm::dvec3 cameraOrigin = getScene().getCamera().getEye();
 	// double dummy;

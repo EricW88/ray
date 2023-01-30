@@ -97,23 +97,37 @@ bool TrimeshFace::intersectLocal(ray& r, isect& i) const
 	// YOUR CODE HERE
 	//
 	// FIXME: Add ray-trimesh intersection
-	return false;
-	// glm::dvec3 a_coords = parent->vertices[ids[0]];
-	// glm::dvec3 b_coords = parent->vertices[ids[1]];
-	// glm::dvec3 c_coords = parent->vertices[ids[2]];
+	// return false;
+	glm::dvec3 a_coords = parent->vertices[ids[0]];
+	glm::dvec3 b_coords = parent->vertices[ids[1]];
+	glm::dvec3 c_coords = parent->vertices[ids[2]];
 
-	// // glm::dvec3 vab = (b_coords - a_coords);
-	// // glm::dvec3 vac = (c_coords - a_coords);
-	// // glm::dvec3 vcb = (b_coords - c_coords);
+	// glm::dvec3 vab = (b_coords - a_coords);
+	// glm::dvec3 vac = (c_coords - a_coords);
+	// glm::dvec3 vcb = (b_coords - c_coords);
 
-	// double t = -1 * (glm::dot(this->normal, r.getPosition()) + this->dist) / glm::dot(this->normal, r.getDirection());
-	// glm::dvec3 q = r.at(t);
-	// // assert(false);
-	// double area = glm::length(glm::cross(c_coords - a_coords, b_coords - a_coords));
+	double t = -1 * (glm::dot(this->normal, r.getPosition()) + this->dist) / glm::dot(this->normal, r.getDirection());
+	// std::cout << t << std::endl;
+	if(t < 0) {
+		std::cout << "no intersection" << std::endl;
+		return false;
+	}
+	glm::dvec3 q = r.at(t);
+	
+	glm::dvec3 vec1 = glm::cross(b_coords - a_coords, q - a_coords);
+	glm::dvec3 vec2 = glm::cross(c_coords - b_coords, q - b_coords);
+	glm::dvec3 vec3 = glm::cross(a_coords - c_coords, q - c_coords);
+
+	if(glm::dot(vec1, this->normal) < 0 || glm::dot(vec2, this->normal) < 0 || glm::dot(vec3, this->normal) < 0) {
+		std::cout << "no intersection" << std::endl;
+		return false;
+	}
+
+	double area = glm::length(glm::cross(c_coords - a_coords, b_coords - a_coords));
 	// assert(area > 0);
-	// double alpha = glm::length(glm::cross(c_coords - b_coords, q - b_coords)) / area;
+	double alpha = glm::length(glm::cross(c_coords - b_coords, q - b_coords)) / area;
 	// // assert(false);
-	// double beta = glm::length(glm::cross(a_coords - c_coords, q - c_coords)) / area;
+	double beta = glm::length(glm::cross(a_coords - c_coords, q - c_coords)) / area;
 	// double gamma = glm::length(glm::cross(b_coords - a_coords, q - a_coords)) / area;
 	
 	// if(alpha + beta + gamma != 1 || alpha < 0 || beta < 0 || gamma < 0) {
@@ -125,10 +139,14 @@ bool TrimeshFace::intersectLocal(ray& r, isect& i) const
 	// 	// std::cout << "returning false" << std::endl;
 	// 	return false;
 	// }
-	// // assert(false);
-	// i.setT(t);
-	// i.setUVCoordinates(glm::dvec2(alpha, beta));
-	// return true;
+	// assert(false);
+	i.setT(t);
+	i.setN(this->normal);
+	i.setObject(this);
+	i.setMaterial(this->getMaterial());
+	i.setUVCoordinates(glm::dvec2(alpha, beta));
+	std::cout << "intersection" << std::endl;
+	return true;
 }
 
 // Once all the verts and faces are loaded, per vertex normals can be
