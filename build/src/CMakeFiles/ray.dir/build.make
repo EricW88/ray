@@ -912,6 +912,8 @@ bin/ray: /usr/lib/x86_64-linux-gnu/libpng.so
 bin/ray: /usr/lib/x86_64-linux-gnu/libz.so
 bin/ray: /usr/lib/x86_64-linux-gnu/libz.so
 bin/ray: /usr/lib/x86_64-linux-gnu/libGLU.so
+bin/ray: /usr/lib/gcc/x86_64-linux-gnu/7/libgomp.so
+bin/ray: /usr/lib/x86_64-linux-gnu/libpthread.so
 bin/ray: src/CMakeFiles/ray.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/u/ericwang/cs354/ray/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_33) "Linking CXX executable ../bin/ray"
 	cd /u/ericwang/cs354/ray/build/src && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/ray.dir/link.txt --verbose=$(VERBOSE)

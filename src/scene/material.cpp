@@ -51,6 +51,7 @@ glm::dvec3 Material::shade(Scene* scene, const ray& r, const isect& i) const
 	for ( const auto& pLight : scene->getAllLights() ) {
 
 		glm::dvec3 atten = pLight->distanceAttenuation(q) * pLight->shadowAttenuation(r, q);
+		if(glm::length(atten) == 0) continue;
 		glm::dvec3 diffuse = kd(i) * std::max(glm::dot(pLight->getDirection(q), i.getN()), 0.0);
 		glm::dvec3 incidenceRay = -pLight->getDirection(q);
 		glm::dvec3 reflection = glm::normalize(incidenceRay - 2 * glm::dot(i.getN(), incidenceRay) * i.getN());

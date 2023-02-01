@@ -133,13 +133,23 @@ bool TrimeshFace::intersectLocal(ray& r, isect& i) const
 		glm::dvec3 betaNorm = parent->normals[ids[1]] * beta;
 		glm::dvec3 gammaNorm = parent->normals[ids[2]] * gamma;
 		i.setN(alphaNorm + betaNorm + gammaNorm);
+	} else {
+		i.setN(this->normal);
+	}
+	if(parent->materials.empty()) {
+		m = this->getMaterial();
+	} else {
 		m += alpha * (*parent->materials[ids[0]]);
 		m += beta * (*parent->materials[ids[1]]);
 		m += gamma * (*parent->materials[ids[2]]);
-	} else {
-		i.setN(this->normal);
-		m = this->getMaterial();
 	}
+	// 	m += alpha * (*parent->materials[ids[0]]);
+	// 	m += beta * (*parent->materials[ids[1]]);
+	// 	m += gamma * (*parent->materials[ids[2]]);
+	// } else {
+	// 	i.setN(this->normal);
+	// 	m = this->getMaterial();
+	// }
 	i.setT(t);
 	i.setObject(this);
 	i.setMaterial(m);
