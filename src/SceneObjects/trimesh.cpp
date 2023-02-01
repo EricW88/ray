@@ -106,10 +106,10 @@ bool TrimeshFace::intersectLocal(ray& r, isect& i) const
 	// glm::dvec3 vac = (c_coords - a_coords);
 	// glm::dvec3 vcb = (b_coords - c_coords);
 
-	double t = -1 * (glm::dot(this->normal, r.getPosition()) + this->dist) / glm::dot(this->normal, r.getDirection());
+	double t = -1 * (glm::dot(this->normal, r.getPosition()) - this->dist) / glm::dot(this->normal, r.getDirection());
 	// std::cout << t << std::endl;
 	if(t < 0) {
-		std::cout << "no intersection" << std::endl;
+		// std::cout << "no intersection" << std::endl;
 		return false;
 	}
 	glm::dvec3 q = r.at(t);
@@ -119,33 +119,31 @@ bool TrimeshFace::intersectLocal(ray& r, isect& i) const
 	glm::dvec3 vec3 = glm::cross(a_coords - c_coords, q - c_coords);
 
 	if(glm::dot(vec1, this->normal) < 0 || glm::dot(vec2, this->normal) < 0 || glm::dot(vec3, this->normal) < 0) {
-		std::cout << "no intersection" << std::endl;
 		return false;
 	}
 
 	double area = glm::length(glm::cross(c_coords - a_coords, b_coords - a_coords));
-	// assert(area > 0);
 	double alpha = glm::length(glm::cross(c_coords - b_coords, q - b_coords)) / area;
-	// // assert(false);
 	double beta = glm::length(glm::cross(a_coords - c_coords, q - c_coords)) / area;
-	// double gamma = glm::length(glm::cross(b_coords - a_coords, q - a_coords)) / area;
-	
-	// if(alpha + beta + gamma != 1 || alpha < 0 || beta < 0 || gamma < 0) {
-	// 	// std::cout << a_coords.x << " " << a_coords.y << " " << a_coords.z << std::endl;
-	// 	// std::cout << b_coords.x << " " << b_coords.y << " " << b_coords.z << std::endl;
-	// 	// std::cout << c_coords.x << " " << c_coords.y << " " << c_coords.z << std::endl;
-	// 	// std::cout << q.x << " " << q.y << " " << q.z << std::endl;
-	// 	// std::cout << alpha << " " << beta << " " << gamma << " " << area << std::endl;
-	// 	// std::cout << "returning false" << std::endl;
-	// 	return false;
-	// }
-	// assert(false);
+	double gamma = glm::length(glm::cross(b_coords - a_coords, q - a_coords)) / area;
+
+	Material m;
+	if(parent->vertNorms) {
+		glm::dvec3 alphaNorm = parent->normals[ids[0]] * alpha;
+		glm::dvec3 betaNorm = parent->normals[ids[1]] * beta;
+		glm::dvec3 gammaNorm = parent->normals[ids[2]] * gamma;
+		i.setN(alphaNorm + betaNorm + gammaNorm);
+		m += alpha * (*parent->materials[ids[0]]);
+		m += beta * (*parent->materials[ids[1]]);
+		m += gamma * (*parent->materials[ids[2]]);
+	} else {
+		i.setN(this->normal);
+		m = this->getMaterial();
+	}
 	i.setT(t);
-	i.setN(this->normal);
 	i.setObject(this);
-	i.setMaterial(this->getMaterial());
+	i.setMaterial(m);
 	i.setUVCoordinates(glm::dvec2(alpha, beta));
-	std::cout << "intersection" << std::endl;
 	return true;
 }
 

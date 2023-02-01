@@ -55,16 +55,9 @@ glm::dvec3 Material::shade(Scene* scene, const ray& r, const isect& i) const
 		glm::dvec3 incidenceRay = -pLight->getDirection(q);
 		glm::dvec3 reflection = glm::normalize(incidenceRay - 2 * glm::dot(i.getN(), incidenceRay) * i.getN());
 		glm::dvec3 specular = ks(i) * std::pow(std::max(glm::dot(reflection, -r.getDirection()), 0.0), shininess(i));
-		// assert(glm::length(reflection) == 1.0);
-		// glm::dvec3 test =  pLight->getColor() * (diffuse + specular);
-		// std::cout << test.x << " " << test.y << " " << test.z << std::endl;
-		// std::cout << atten << " " << pLight->getColor() << " " << (diffuse + specular) << std::endl;
-		// std::cout << glm::length(glm::dot(reflection, r.getDirection())) << " " << glm::length(reflection) << std::endl;
 		color += atten * pLight->getColor() * (diffuse + specular);
 	}
-	// std::cout << color.x << " " << color.y << " " << color.z << std::endl;
 	return color;
-	// return kd(i);
 }
 
 TextureMap::TextureMap(string filename)

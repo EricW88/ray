@@ -259,12 +259,11 @@ void RayTracer::traceImage(int w, int h)
 	// FIXME: Start one or more threads for ray tracing. 
 	// OpenMP is probably best "bang for buck" time spent on this task
 	//
-	// for(int i = 0; i < w; i++) {
-	// 	for(int j = 0; j < h; j++) {
-	// 		tracePixel(i, j);
-	// 	}
-	// }
-	tracePixel(167,348);
+	for(int i = 0; i < w; i++) {
+		for(int j = 0; j < h; j++) {
+			tracePixel(i, j);
+		}
+	}
 
 	// glm::dvec3 cameraOrigin = getScene().getCamera().getEye();
 	// double dummy;
