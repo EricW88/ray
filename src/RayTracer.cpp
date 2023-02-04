@@ -114,7 +114,7 @@ glm::dvec3 RayTracer::traceRay(ray& r, const glm::dvec3& thresh, int depth, doub
 
 		glm::dvec3 reflectVec = glm::normalize(r.getDirection() - 2 * glm::dot(normalVec, r.getDirection()) * normalVec);
 		ray reflectRay(q, reflectVec, glm::dvec3(1, 1, 1), ray::REFLECTION);
-		
+		reflectRay.setPosition(reflectRay.at(RAY_EPSILON));
 		colorC = m.shade(scene.get(), r, i);
 		if(glm::length(colorC) < t) {
 			return colorC;
@@ -137,6 +137,7 @@ glm::dvec3 RayTracer::traceRay(ray& r, const glm::dvec3& thresh, int depth, doub
 			glm::dvec3 t_vec = (n_r * glm::dot(normalVec, i_vec) - sqrt(1 - n_r * n_r * (1 - std::pow(glm::dot(normalVec, i_vec), 2)))) * normalVec - n_r * i_vec;
 			t_vec = glm::normalize(t_vec);
 			ray refractRay(q, t_vec, glm::dvec3(1,1,1), ray::REFRACTION);
+			refractRay.setPosition(refractRay.at(RAY_EPSILON));
 			colorC += m.kt(i) * traceRay(refractRay, thresh, depth - 1, t);
 		}
 
