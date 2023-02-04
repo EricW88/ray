@@ -118,7 +118,7 @@ glm::dvec3 RayTracer::traceRay(ray& r, const glm::dvec3& thresh, int depth, doub
 		// reflectRay.setPosition(reflectRay.at(RAY_EPSILON));
 		
 		colorC = m.shade(scene.get(), r, i);
-		if(glm::length(colorC) <= t) {
+		if(glm::length(colorC) < t) {
 			return colorC;
 		}
 		// m.kr(i) * (thresh - colorC)
