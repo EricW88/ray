@@ -16,14 +16,17 @@ glm::dvec3 CubeMap::getColor(ray r) const
 	double z = abs(d.z);
 	// std::cout << d.x << " " << d.y << " " << d.z << std::endl;
 	if(x >= y && x >= z) {
-		
+		int u;
+        int v;
 		if(d.x > 0) {
 			std::cout << "pos x" << std::endl;
 			glm::dvec2 coord(d.y, -d.z);
 			return tMap[0]->getMappedValue(coord);
 		} else {
 			// std::cout << "neg x" << std::endl;
-			glm::dvec2 coord(d.z / d.x, d.y / d.x);
+            u = ((d.z / d.x) + 1) / 2;
+            v = ((d.y / d.x) + 1) / 2;
+			glm::dvec2 coord(u, v);
 			return tMap[1]->getMappedValue(coord);
 		}
 	} else if (y >= x && y >= z) {
