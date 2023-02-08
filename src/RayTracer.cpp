@@ -105,7 +105,6 @@ glm::dvec3 RayTracer::traceRay(ray& r, const glm::dvec3& thresh, int depth, doub
 		// Instead of just returning the result of shade(), add some
 		// more steps: add in the contributions from reflected and refracted
 		// rays.
-		// glm::dvec3 q = r.at(i.getT());
 
 
 		const Material& m = i.getMaterial();
@@ -115,13 +114,11 @@ glm::dvec3 RayTracer::traceRay(ray& r, const glm::dvec3& thresh, int depth, doub
 
 		glm::dvec3 reflectVec = glm::normalize(r.getDirection() - 2 * glm::dot(normalVec, r.getDirection()) * normalVec);
 		ray reflectRay(q, reflectVec, glm::dvec3(1, 1, 1), ray::REFLECTION);
-		// reflectRay.setPosition(reflectRay.at(RAY_EPSILON));
-		
+		reflectRay.setPosition(reflectRay.at(RAY_EPSILON));
 		colorC = m.shade(scene.get(), r, i);
-		if(glm::length(colorC) <= t) {
+		if(glm::length(colorC) < t) {
 			return colorC;
 		}
-		// m.kr(i) * (thresh - colorC)
 		colorC += m.kr(i) * traceRay(reflectRay, thresh, depth - 1, t);
 
 		glm::dvec3 i_vec = -r.getDirection();
@@ -140,6 +137,7 @@ glm::dvec3 RayTracer::traceRay(ray& r, const glm::dvec3& thresh, int depth, doub
 			glm::dvec3 t_vec = (n_r * glm::dot(normalVec, i_vec) - sqrt(1 - n_r * n_r * (1 - std::pow(glm::dot(normalVec, i_vec), 2)))) * normalVec - n_r * i_vec;
 			t_vec = glm::normalize(t_vec);
 			ray refractRay(q, t_vec, glm::dvec3(1,1,1), ray::REFRACTION);
+			refractRay.setPosition(refractRay.at(RAY_EPSILON));
 			colorC += m.kt(i) * traceRay(refractRay, thresh, depth - 1, t);
 		}
 
