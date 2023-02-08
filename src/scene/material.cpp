@@ -86,7 +86,9 @@ glm::dvec3 TextureMap::getMappedValue(const glm::dvec2& coord) const
 	// and use these to perform bilinear interpolation
 	// of the values.
 
-	return glm::dvec3(1, 1, 1);
+	int x = coord.x * this->width;
+	int y = coord.y * this->height;
+	return getPixelAt(x, y);
 }
 
 glm::dvec3 TextureMap::getPixelAt(int x, int y) const
@@ -95,8 +97,8 @@ glm::dvec3 TextureMap::getPixelAt(int x, int y) const
 	//
 	// In order to add texture mapping support to the
 	// raytracer, you need to implement this function.
-
-	return glm::dvec3(1, 1, 1);
+	int index = (y * this->width + x) * 3;
+	return glm::dvec3(data[index] / 255.0, data[index + 1] / 255.0, data[index + 2] / 255.0);
 }
 
 glm::dvec3 MaterialParameter::value(const isect& is) const

@@ -49,6 +49,32 @@ glm::dvec3 RayTracer::trace(double x, double y)
 	glm::dvec3 ret = traceRay(r, glm::dvec3(1, 1, 1), traceUI->getDepth(), threshold);
 	ret = glm::clamp(ret, 0.0, 1.0);
 	return ret;
+
+	// // ray r(glm::dvec3(0,0,0), glm::dvec3(0,0,0), glm::dvec3(1,1,1), ray::VISIBILITY);
+	// Camera c = scene->getCamera();
+
+	// // scene->getCamera().rayThrough(x,y,r);
+	// int numSamples = traceUI->aaSwitch() ? traceUI->getSuperSamples() : 1;
+	// double threshold = traceUI->getThreshold();
+	
+	// double offset = .5 / numSamples;
+	// // std::cout << offset << std::endl;
+	// glm::dvec3 ret = glm::dvec3(0, 0, 0);
+	// for(int i = 0; i < numSamples; i++) {
+	// 	for(int j = 0; j < numSamples; j++) {
+	// 		ray r(glm::dvec3(0,0,0), glm::dvec3(0,0,0), glm::dvec3(1,1,1), ray::VISIBILITY);
+	// 		double xi = x - offset - i / numSamples;
+	// 		double yj = y - offset - j / numSamples;
+	// 		std::cout << xi << " " << yj << std::endl;
+	// 		glm::dvec3 dir = glm::normalize(c.getLook() + xi * c.getU() + yj * c.getV());
+	// 		r.setPosition(c.getEye());
+	// 		r.setDirection(dir);
+	// 		ret += traceRay(r, glm::dvec3(1, 1, 1), traceUI->getDepth(), threshold);
+	// 	}
+	// }
+	// ret /= (numSamples * numSamples);
+	// ret = glm::clamp(ret, 0.0, 1.0);
+	// return ret;
 }
 
 glm::dvec3 RayTracer::tracePixel(int i, int j)
@@ -61,7 +87,19 @@ glm::dvec3 RayTracer::tracePixel(int i, int j)
 	double y = double(j)/double(buffer_height);
 
 	unsigned char *pixel = buffer.data() + ( i + j * buffer_width ) * 3;
-	col = trace(x, y);
+
+	int numSamples = traceUI->aaSwitch() ? traceUI->getSuperSamples() : 1;
+
+	double offset = .5 / numSamples;
+	// std::cout << offset << std::endl;
+	for(int a = 0; a < numSamples; a++) {
+		for(int b = 0; b < numSamples; b++) {
+			double xa = (i + offset + a * offset * 2) / double(buffer_width);
+			double yb = (j + offset + b * offset * 2) / double(buffer_height);
+			col += trace(xa, yb);
+		}
+	}
+	col /= numSamples * numSamples;
 
 	pixel[0] = (int)( 255.0 * col[0]);
 	pixel[1] = (int)( 255.0 * col[1]);
@@ -151,7 +189,11 @@ glm::dvec3 RayTracer::traceRay(ray& r, const glm::dvec3& thresh, int depth, doub
 		//       Check traceUI->cubeMap() to see if cubeMap is loaded
 		//       and enabled.
 
-		colorC = glm::dvec3(0, 0, 0);
+		if(traceUI->cubeMap()) {
+			colorC = traceUI->getCubeMap()->getColor(r);
+		} else {
+			colorC = glm::dvec3(0, 0, 0);
+		}
 	}
 #if VERBOSE
 	std::cerr << "== depth: " << depth+1 << " done, returning: " << colorC << std::endl;
