@@ -20,6 +20,7 @@
 #include "camera.h"
 #include "material.h"
 #include "ray.h"
+#include "kdTree.h"
 
 #include <glm/geometric.hpp>
 #include <glm/mat3x3.hpp>
@@ -33,8 +34,8 @@ using std::unique_ptr;
 class Light;
 class Scene;
 
-template <typename Obj>
-class KdTree;
+// template <typename Obj>
+// class KdTree;
 
 class SceneElement {
 public:
