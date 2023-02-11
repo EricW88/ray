@@ -1,12 +1,22 @@
 #include <float.h>
+#include <glm/glm.hpp>
+
+#include "bbox.h"
 
 #pragma once
 
 // Note: you can put kd-tree here
 
+// class BoundingBox;
+class ray;
+class isect;
+
 class Plane {
     public:
         Plane(glm::dvec3 a, glm::dvec3 p) : axis(a), position(p) {}
+
+        glm::dvec3 getAxis() {return axis;}
+        glm::dvec3 getPosition() {return position;}
     private:
         glm::dvec3 axis;
         glm::dvec3 position;
@@ -16,7 +26,7 @@ template <typename Objects>
 class KdTree {
     public:
         KdTree(BoundingBox box) : bbox(box) {}
-        KdTree buildTree(std::vector<Objects *> objList, BoundingBox bbox, int depth, int leafSize);
+        KdTree* buildTree(std::vector<Objects *> objList, BoundingBox bbox, int depth, int leafSize);
         Plane findBestSplitPlane(std::vector<Objects *> objList, BoundingBox bbox);
         int countObjects(std::vector<Objects *> objList, BoundingBox bbox);
 
@@ -40,7 +50,7 @@ class SplitNode : KdTree<Objects> {
         KdTree<Objects> *right;
     public:
         
-        SplitNode(Plane pl, KdTree<Objects> l, KdTree<Objects> r, BoundingBox box) : plane(pl), left(&l), right(&r), KdTree<Objects>(box) {}
+        SplitNode(Plane pl, KdTree<Objects> *l, KdTree<Objects> *r, BoundingBox box) : plane(pl), left(l), right(r), KdTree<Objects>(box) {}
         bool findIntersection(ray &r, isect &i, double tmin, double tmax);
     private:
         

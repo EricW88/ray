@@ -144,4 +144,13 @@ TextureMap* Scene::getTexture(string name) {
 	return itr->second.get();
 }
 
+void Scene::createKdTree(int depth, int leafsize) {
+	std::vector<Geometry*>  objectsList;
+	// convert from unique_ptr to regular pointer
+	for(auto it = beginObjects(); it != endObjects(); it++) {
+		objectsList.push_back((Geometry*)it->get());
+	}
+	kdtree = kdtree->KdTree<Geometry>::buildTree(objectsList, bounds(), depth, leafsize);
+}
+
 

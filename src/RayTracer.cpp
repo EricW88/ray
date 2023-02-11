@@ -6,6 +6,7 @@
 #include "scene/light.h"
 #include "scene/material.h"
 #include "scene/ray.h"
+#include "scene/kdTree.h"
 
 #include "parser/Tokenizer.h"
 #include "parser/Parser.h"
@@ -310,6 +311,7 @@ void RayTracer::traceImage(int w, int h)
 	// FIXME: Start one or more threads for ray tracing. 
 	// OpenMP is probably best "bang for buck" time spent on this task
 	//
+
 	omp_set_num_threads(traceUI->getThreads());
 	#pragma omp parallel
 	{
