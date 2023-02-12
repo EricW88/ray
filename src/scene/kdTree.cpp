@@ -15,30 +15,37 @@ KdTree<Objects>* KdTree<Objects>::buildTree(std::vector<Objects*> objList, Bound
     std::vector<Objects *> leftList;
     std::vector<Objects *> rightList;
     for(Objects *obj : objList) {
+        bool enteredList = false;
         BoundingBox objBox = obj->getBoundingBox();
         double position = glm::dot(bestPlane.getPosition(), bestPlane.getAxis());
         double bboxMin = glm::dot(objBox.getMin(), bestPlane.getAxis());
         double bboxMax = glm::dot(objBox.getMax(), bestPlane.getAxis());
         if(bboxMin < position) {
+            enteredList = true;
             leftList.push_back(obj);
         }
         // account for objects on the left and right of the split
         if(bboxMax > position) {
+            enteredList = true;
             rightList.push_back(obj);
         }
 
         double objNormal = glm::dot(obj->getNormal(), bestPlane.getAxis());
         if(bboxMax == position && bboxMin == position && objNormal < 0) {
+            enteredList = true;
             leftList.push_back(obj);
         } else if(bboxMax == position && bboxMin == position && objNormal >= 0) {
+            enteredList = true;
             rightList.push_back(obj);
         }
+        assert(enteredList);
     }
 
     if(rightList.empty() || leftList.empty()) {
+        size += objList.size();
         return new LeafNode<Objects>(objList, bbox);
     }
-
+    std::cout << leftList.size() << " " << rightList.size() << std::endl;
     glm::dvec3 leftMax = bbox.getMax();
     glm::dvec3 rightMin = bbox.getMin();
     if(bestPlane.getAxis().x != 0) {
@@ -115,14 +122,15 @@ Plane KdTree<Objects>::findBestSplitPlane(std::vector<Objects *> objList, Boundi
                 rightCount++;
             }
         }
-
         double sam = leftCount * leftBox.area() + rightCount * rightBox.area();
         if(sam < minSam) {
+            std::cout << bbox.area() << " " << leftBox.area() << " " << rightBox.area() << std::endl;
+            // std::cout << objList.size() << " " << leftCount << " " << rightCount << " " << sam << " " << glm::dot(candidate.getPosition(), candidate.getAxis()) << std::endl;
             minSam = sam;
             bestPlane = candidate;
         }
     }
-
+    std::cout << "Returning!!!" << std::endl;
     return bestPlane;
 }
 

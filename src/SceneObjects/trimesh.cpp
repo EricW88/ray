@@ -72,7 +72,7 @@ bool Trimesh::intersectLocal(ray& r, isect& i) const
 	bool have_one = false;
 	for (auto face : faces) {
 		isect cur;
-		if (face->intersectLocal(r, cur)) {
+		if (face->intersect(r, cur)) {
 			if (!have_one || (cur.getT() < i.getT())) {
 				i = cur;
 				have_one = true;
@@ -86,19 +86,20 @@ bool Trimesh::intersectLocal(ray& r, isect& i) const
 
 bool TrimeshFace::intersect(ray& r, isect& i) const
 {
+	// std::cout << "running intersect!" << std::endl;
 	if(!traceUI->kdSwitch()) {
 		return intersectLocal(r, i);
 	}
-	
+
 	KdTree<Geometry> *kdTree = this->getScene()->getKdTree();
 	double tmin;
 	double tmax;
 	bool found_one;
 	if(kdTree->findIntersection(r, i, tmin, tmax, found_one)) {
-		std::cout << "running narrow phase" << std::endl;
+		// std::cout << "running narrow phase" << std::endl;
 		return intersectLocal(r, i);
 	}
-	std::cout << "failed broadphase" << std::endl;
+	// std::cout << "failed broadphase" << std::endl;
 	return false;
 }
 
