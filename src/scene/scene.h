@@ -266,6 +266,7 @@ public:
 	const BoundingBox& bounds() const { return sceneBounds; }
 
 	void createKdTree(int depth, int leafsize);
+	KdTree<Geometry>* getKdTree() const {return kdTree;}
 
 
 private:
@@ -287,7 +288,7 @@ private:
 	// are exempt from this requirement.
 	BoundingBox sceneBounds;
 
-	KdTree<Geometry>* kdtree;
+	KdTree<Geometry>* kdTree;
 
 	mutable std::mutex intersectionCacheMutex;
 

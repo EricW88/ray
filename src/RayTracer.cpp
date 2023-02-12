@@ -263,7 +263,10 @@ bool RayTracer::loadScene(const char* fn)
 
 	if (!sceneLoaded())
 		return false;
-
+	
+	if(traceUI->kdSwitch()) {
+		scene->createKdTree(traceUI->getMaxDepth(), traceUI->getLeafSize());
+	}
 	return true;
 }
 

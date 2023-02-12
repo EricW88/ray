@@ -2,6 +2,7 @@
 
 #include "scene.h"
 #include "light.h"
+#include "../SceneObjects/trimesh.h"
 #include "kdTree.cpp"
 #include "../ui/TraceUI.h"
 #include <glm/gtx/extended_min_max.hpp>
@@ -145,15 +146,22 @@ TextureMap* Scene::getTexture(string name) {
 }
 
 void Scene::createKdTree(int depth, int leafsize) {
-	std::vector<Geometry*>  objectsList;
+	std::vector<Geometry*> objectsList;
 	// convert from unique_ptr to regular pointer
 	for(auto it = beginObjects(); it != endObjects(); it++) {
-
-		objectsList.push_back(it->get());
+		Trimesh *mesh = dynamic_cast<Trimesh *>(it->get());
+		if(mesh == nullptr) {
+			objectsList.push_back(it->get());
+		} else {
+			for(TrimeshFace *face : mesh->getFaces()) {
+				objectsList.push_back(face);
+			}
+		}
 	}
 
 	// KdTree<Geometry> kdTree(objectsList, bounds(), depth, leafsize);
-	KdTree<Geometry> *kdtree = KdTree<Geometry>::buildTree(objectsList, bounds(), depth, leafsize);
+	std::cout << "building tree of size: " << objectsList.size() << std::endl;
+	kdTree = KdTree<Geometry>::buildTree(objectsList, bounds(), depth, leafsize);
 }
 
 

@@ -66,7 +66,6 @@ private:
 	std::unique_ptr<Scene> scene;
 
 	bool m_bBufferReady;
-
 };
 
 #endif // __RAYTRACER_H__
