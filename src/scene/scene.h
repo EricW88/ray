@@ -20,7 +20,7 @@
 #include "camera.h"
 #include "material.h"
 #include "ray.h"
-// #include "kdTree.h"
+#include "kdTree.h"
 
 #include <glm/geometric.hpp>
 #include <glm/mat3x3.hpp>

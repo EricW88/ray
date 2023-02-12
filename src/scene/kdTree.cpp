@@ -1,26 +1,27 @@
 #include "kdTree.h"
 
+template <typename Objects>
 KdTree<Objects>* KdTree<Objects>::buildTree(std::vector<Objects*> objList, BoundingBox bbox, int depth, int leafSize) {
     if(objList.size() <= leafSize || depth == 0) {
-        return &LeafNode(objList, bbox);
+        return new LeafNode<Objects>(objList, bbox);
     }
     Plane bestPlane = findBestSplitPlane(objList, bbox);
     std::vector<Objects *> leftList;
     std::vector<Objects *> rightList;
     for(Objects *obj : objList) {
         BoundingBox objBox = obj->getBoundingBox();
-        double position = glm::dot(bestPlane.position, bestPlane.axis);
-        double bboxMin = glm::dot(objBox.bmin, bestPlane.axis);
-        double bboxMax = glm::dot(objBox.bmax, bestPlane.axis);
+        double position = glm::dot(bestPlane.getPosition(), bestPlane.getAxis());
+        double bboxMin = glm::dot(objBox.getMin(), bestPlane.getAxis());
+        double bboxMax = glm::dot(objBox.getMax(), bestPlane.getAxis());
         if(bboxMin < position) {
             leftList.push_back(obj);
         }
         // account for objects on the left and right of the split
-        if(glm::dot(bboxMax > position) {
+        if(bboxMax > position) {
             rightList.push_back(obj);
         }
 
-        double objNormal = glm::dot(obj->getNormal(), bestPlane.axis);
+        double objNormal = glm::dot(obj->getNormal(), bestPlane.getAxis());
         if(bboxMax == position && bboxMin == position && objNormal < 0) {
             leftList.push_back(obj);
         } else if(bboxMax == position && bboxMin == position && objNormal >= 0) {
@@ -29,27 +30,33 @@ KdTree<Objects>* KdTree<Objects>::buildTree(std::vector<Objects*> objList, Bound
     }
 
     if(rightList.empty() || leftList.empty()) {
-        return &LeafNode(objList, bbox);
+        return new LeafNode<Objects>(objList, bbox);
     }
 
     glm::dvec3 leftMax = bbox.getMax();
     glm::dvec3 rightMin = bbox.getMin();
-    if(bestPlane.axis.x != 0) {
-        leftMax.x = bestPlane.position.x;
-        rightMin.x = bestPlane.position.x;
-    } else if(bestPlane.axis.y != 0) {
-        leftMax.y = bestPlane.position.y;
-        rightMin.y = bestPlane.position.y;
+    if(bestPlane.getAxis().x != 0) {
+        leftMax.x = bestPlane.getPosition().x;
+        rightMin.x = bestPlane.getPosition().x;
+    } else if(bestPlane.getAxis().y != 0) {
+        leftMax.y = bestPlane.getPosition().y;
+        rightMin.y = bestPlane.getPosition().y;
     } else {
-        leftMax.z = bestPlane.position.z;
-        rightMin.z = bestPlane.position.z;
+        leftMax.z = bestPlane.getPosition().z;
+        rightMin.z = bestPlane.getPosition().z;
     }
     BoundingBox leftBBox = BoundingBox(bbox.getMin(), leftMax);
     BoundingBox rightBBox = BoundingBox(rightMin, bbox.getMax());
-    return &SplitNode(bestPlane, buildTree(leftList, leftBBox, depth - 1, leafSize), buildTree(rightList, rightBBox, depth - 1, leafSize), bbox);
+    return new SplitNode<Objects>(bestPlane, buildTree(leftList, leftBBox, depth - 1, leafSize), buildTree(rightList, rightBBox, depth - 1, leafSize), bbox);
 }
 
-Plane kdTree::findBestSplitPlane(std::vector<Objects *> objList, BoundingBox bbox) {
+// template <typename Objects>
+// KdTree<Objects>::KdTree(std::vector<Objects *> objList, BoundingBox box, int depth, int leafSize) : bbox(box){
+//     this = buildTree(objList, bbox, depth, leafSize);
+// }
+
+template <typename Objects>
+Plane KdTree<Objects>::findBestSplitPlane(std::vector<Objects *> objList, BoundingBox bbox) {
     std::vector<Plane> candidateList;
     for(int a = 0; a < 3; ++a) {
         glm::dvec3 axis(0, 0, 0);
@@ -92,13 +99,13 @@ Plane kdTree::findBestSplitPlane(std::vector<Objects *> objList, BoundingBox bbo
         for(Objects *obj : objList) {
             BoundingBox objBox = obj->getBoundingBox();
             double position = glm::dot(candidate.getPosition(), candidate.getAxis());
-            double bboxMin = glm::dot(objBox.bmin, candidate.getAxis());
-            double bboxMax = glm::dot(objBox.bmax, candidate.getAxis());
+            double bboxMin = glm::dot(objBox.getMin(), candidate.getAxis());
+            double bboxMax = glm::dot(objBox.getMax(), candidate.getAxis());
             if(bboxMin < position) {
                 leftCount++;
             }
             // account for objects on the left and right of the split
-            if(glm::dot(bboxMax > position) {
+            if(bboxMax > position) {
                 rightCount++;
             }
         }
@@ -106,7 +113,7 @@ Plane kdTree::findBestSplitPlane(std::vector<Objects *> objList, BoundingBox bbo
         double sam = leftCount * leftBox.area() + rightCount * rightBox.area();
         if(sam < minSam) {
             minSam = sam;
-            bestPlane = plane;
+            bestPlane = candidate;
         }
     }
 
@@ -122,12 +129,12 @@ Plane kdTree::findBestSplitPlane(std::vector<Objects *> objList, BoundingBox bbo
 //     return result;
 // }
 
-
-bool SplitNode::findIntersection(ray &r, isect &i, double tmin, double tmax, bool &found_one) {
+template <typename Objects>
+bool SplitNode<Objects>::findIntersection(ray &r, isect &i, double tmin, double tmax, bool &found_one) {
     // don't check for intersection in left and right bbox individually b/c it's slow
     bool hitBbox = this->getBoundingBox().intersect(r, tmin, tmax);
     // didn't intersect the bounding box
-    if(!hitBBox) return false;
+    if(!hitBbox) return false;
 
     double r_pos = glm::dot(r.getPosition(), plane.getAxis());
     double r_dir = glm::dot(r.getDirection(), plane.getAxis());
@@ -135,9 +142,9 @@ bool SplitNode::findIntersection(ray &r, isect &i, double tmin, double tmax, boo
 
     // ray is parallel
     if(r_dir == 0) {
-        if(r_pos < axis_pos && left->findIntersection(r, i, tmin, tmax, found_one)) {
+        if(r_pos < axis_pos && this->left->findIntersection(r, i, tmin, tmax, found_one)) {
             return true;
-        } else if(r_pos > axis_pos && right->findIntersection(r, i, tmin, tmax, found_one)) {
+        } else if(r_pos > axis_pos && this->right->findIntersection(r, i, tmin, tmax, found_one)) {
             return true;
         }    
     }
@@ -147,22 +154,23 @@ bool SplitNode::findIntersection(ray &r, isect &i, double tmin, double tmax, boo
 
     // check if hit both boxes
     if((tmin < t_prime && t_prime < tmax)) {
-        bool leftRecurse = left->findIntersection(r, i, tmin, tmax, found_one);
-        bool rightRecurse = right->findIntersection(r, i, tmin, tmax, found_one);
+        bool leftRecurse = this->left->findIntersection(r, i, tmin, tmax, found_one);
+        bool rightRecurse = this->right->findIntersection(r, i, tmin, tmax, found_one);
         return leftRecurse || rightRecurse;
     }
 
-    else if(glm::dot(ray.at(tmin), plane.getAxis()) < axis_pos && left->findIntersection(r, i, tmin, tmax, found_one)) {
+    else if(glm::dot(r.at(tmin), plane.getAxis()) < axis_pos && this->left->findIntersection(r, i, tmin, tmax, found_one)) {
             return true;
     }
-    else if(glm::dot(ray.at(tmin), plane.getAxis()) > axis_pos && right->findIntersection(r, i, tmin, tmax, found_one)) {
+    else if(glm::dot(r.at(tmin), plane.getAxis()) > axis_pos && this->right->findIntersection(r, i, tmin, tmax, found_one)) {
             return true;
     }
     return false;
     
 }
 
-bool LeafNode::findIntersection(ray &r, isect &i, double tmin, double tmax, bool &found_one) {
+template <typename Objects>
+bool LeafNode<Objects>::findIntersection(ray &r, isect &i, double tmin, double tmax, bool &found_one) {
     bool result = false;
     for(Objects *obj : objList) {
         isect c_i;

@@ -2,7 +2,7 @@
 
 #include "scene.h"
 #include "light.h"
-#include "kdTree.h"
+#include "kdTree.cpp"
 #include "../ui/TraceUI.h"
 #include <glm/gtx/extended_min_max.hpp>
 #include <iostream>
@@ -148,9 +148,12 @@ void Scene::createKdTree(int depth, int leafsize) {
 	std::vector<Geometry*>  objectsList;
 	// convert from unique_ptr to regular pointer
 	for(auto it = beginObjects(); it != endObjects(); it++) {
-		objectsList.push_back((Geometry*)it->get());
+
+		objectsList.push_back(it->get());
 	}
-	kdtree = kdtree->KdTree<Geometry>::buildTree(objectsList, bounds(), depth, leafsize);
+
+	// KdTree<Geometry> kdTree(objectsList, bounds(), depth, leafsize);
+	KdTree<Geometry> *kdtree = KdTree<Geometry>::buildTree(objectsList, bounds(), depth, leafsize);
 }
 
 

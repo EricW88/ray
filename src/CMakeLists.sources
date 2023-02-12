@@ -52,6 +52,7 @@
 ./scene/light.cpp
 ./scene/camera.h
 ./scene/light.h
+./scene/kdTree.cpp
 ./scene/kdTree.h
 ./scene/material.cpp
 ./scene/bbox.h
