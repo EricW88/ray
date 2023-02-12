@@ -1,4 +1,5 @@
 #include "kdTree.h"
+#include <iostream>
 
 template <typename Objects>
 KdTree<Objects>* KdTree<Objects>::buildTree(std::vector<Objects*> objList, BoundingBox bbox, int depth, int leafSize, long long &size) {
@@ -9,6 +10,7 @@ KdTree<Objects>* KdTree<Objects>::buildTree(std::vector<Objects*> objList, Bound
         }
         // std::cout << "creating leaf of size: " << objList.size() << std::endl;
         size += objList.size();
+        // std::cout << objList[0]->getBoundingBox().getMin() << std::endl;
         return new LeafNode<Objects>(objList, bbox);
     }
     Plane bestPlane = findBestSplitPlane(objList, bbox);
@@ -144,7 +146,8 @@ Plane KdTree<Objects>::findBestSplitPlane(std::vector<Objects *> objList, Boundi
 // }
 
 template <typename Objects>
-bool SplitNode<Objects>::findIntersection(ray &r, isect &i, double& tmin, double& tmax, bool &found_one) {
+bool SplitNode<Objects>::findIntersection(ray &r, isect &i, double tmin, double tmax, bool &found_one) {
+    // std::cout << "hello" << std::endl;
     // don't check for intersection in left and right bbox individually b/c it's slow
     bool hitBbox = this->getBoundingBox().intersect(r, tmin, tmax);
     // didn't intersect the bounding box
@@ -184,7 +187,10 @@ bool SplitNode<Objects>::findIntersection(ray &r, isect &i, double& tmin, double
 }
 
 template <typename Objects>
-bool LeafNode<Objects>::findIntersection(ray &r, isect &i, double& tmin, double& tmax, bool &found_one) {
+bool LeafNode<Objects>::findIntersection(ray &r, isect &i, double tmin, double tmax, bool &found_one) {
+    bool hitBbox = this->getBoundingBox().intersect(r, tmin, tmax);
+    // didn't intersect the bounding box
+    if(!hitBbox) return false;
     bool result = false;
     for(Objects *obj : objList) {
         isect c_i;

@@ -37,7 +37,7 @@ class KdTree {
         // Plane findBestSplitPlane(std::vector<Objects *> objList, BoundingBox bbox);
         int countObjects(std::vector<Objects *> objList, BoundingBox bbox);
 
-        virtual bool findIntersection(ray &r, isect &i, double& tmin, double& tmax, bool &found_one) = 0;
+        virtual bool findIntersection(ray &r, isect &i, double tmin, double tmax, bool &found_one) = 0;
 
         BoundingBox getBoundingBox() {return bbox;}
         KdTree<Objects>* getLeft() {return left;}
@@ -56,7 +56,7 @@ template<typename Objects>
 class SplitNode : public KdTree<Objects> {
     public:
         SplitNode(Plane pl, KdTree<Objects> *l, KdTree<Objects> *r, BoundingBox box) : plane(pl), KdTree<Objects>(l, r, box) {}
-        bool findIntersection(ray &r, isect &i, double& tmin, double& tmax, bool &found_one);
+        bool findIntersection(ray &r, isect &i, double tmin, double tmax, bool &found_one);
     private:
         Plane plane;
 
@@ -67,7 +67,7 @@ template<typename Objects>
 class LeafNode : public KdTree<Objects> {
     public:
         LeafNode(std::vector<Objects *> o, BoundingBox box) : objList(o), KdTree<Objects>(NULL, NULL, box) {}
-        bool findIntersection(ray &r, isect &i, double& tmin, double& tmax, bool &found_one);
+        bool findIntersection(ray &r, isect &i, double tmin, double tmax, bool &found_one);
     private:
         std::vector<Objects *> objList;
 };
