@@ -1,10 +1,14 @@
 #include "kdTree.h"
 
 template <typename Objects>
-KdTree<Objects>* KdTree<Objects>::buildTree(std::vector<Objects*> objList, BoundingBox bbox, int depth, int leafSize) {
+KdTree<Objects>* KdTree<Objects>::buildTree(std::vector<Objects*> objList, BoundingBox bbox, int depth, int leafSize, long long &size) {
     // std::cout << "recursing..." << objList.size() << std::endl;
     if(objList.size() <= leafSize || depth == 0) {
+        if(depth == 0) {
+            std::cout << "max depth hit " << objList.size() << std::endl;
+        }
         // std::cout << "creating leaf of size: " << objList.size() << std::endl;
+        size += objList.size();
         return new LeafNode<Objects>(objList, bbox);
     }
     Plane bestPlane = findBestSplitPlane(objList, bbox);
@@ -49,7 +53,7 @@ KdTree<Objects>* KdTree<Objects>::buildTree(std::vector<Objects*> objList, Bound
     }
     BoundingBox leftBBox = BoundingBox(bbox.getMin(), leftMax);
     BoundingBox rightBBox = BoundingBox(rightMin, bbox.getMax());
-    return new SplitNode<Objects>(bestPlane, buildTree(leftList, leftBBox, depth - 1, leafSize), buildTree(rightList, rightBBox, depth - 1, leafSize), bbox);
+    return new SplitNode<Objects>(bestPlane, buildTree(leftList, leftBBox, depth - 1, leafSize, size), buildTree(rightList, rightBBox, depth - 1, leafSize, size), bbox);
 }
 
 // template <typename Objects>

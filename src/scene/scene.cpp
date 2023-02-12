@@ -161,7 +161,9 @@ void Scene::createKdTree(int depth, int leafsize) {
 
 	// KdTree<Geometry> kdTree(objectsList, bounds(), depth, leafsize);
 	std::cout << "building tree of size: " << objectsList.size() << std::endl;
-	kdTree = KdTree<Geometry>::buildTree(objectsList, bounds(), depth, leafsize);
+	long long size = 0;
+	kdTree = KdTree<Geometry>::buildTree(objectsList, bounds(), depth, leafsize, size);
+	std::cout << "tree size: " << size << std::endl;
 }
 
 

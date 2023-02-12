@@ -28,7 +28,7 @@ class Plane {
 template <typename Objects>
 class KdTree {
     public:
-        static KdTree<Objects> *buildTree(std::vector<Objects*> objList, BoundingBox bbox, int depth, int leafSize);
+        static KdTree<Objects> *buildTree(std::vector<Objects*> objList, BoundingBox bbox, int depth, int leafSize, long long&size);
         static Plane findBestSplitPlane(std::vector<Objects *> objList, BoundingBox bbox);
 
 
