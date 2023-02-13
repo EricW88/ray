@@ -12,6 +12,10 @@
 
 using namespace std;
 
+extern TraceUI* traceUI;
+
+double intersectCount = 0;
+
 bool Geometry::intersect(ray& r, isect& i) const {
 	double tmin, tmax;
 	if (hasBoundingBoxCapability() && !(bounds.intersect(r, tmin, tmax))) return false;
@@ -26,6 +30,8 @@ bool Geometry::intersect(ray& r, isect& i) const {
 	r.setPosition(pos);
 	r.setDirection(dir);
 	bool rtrn = false;
+	// intersectCount++;
+	// std::cout << "intersect counts" << intersectCount << std::endl;
 	if (intersectLocal(r, i))
 	{
 		// Transform the intersection point & normal returned back into global space.
@@ -115,21 +121,24 @@ void Scene::add(Light* light)
 // Get any intersection with an object.  Return information about the 
 // intersection through the reference parameter.
 bool Scene::intersect(ray& r, isect& i) const {
-	// std::cout << "hello" << std::endl;
 	double tmin = 0.0;
 	double tmax = 0.0;
 	bool have_one = false;
-	// for(const auto& obj : objects) {
-	// 	isect cur;
-	// 	if( obj->intersect(r, cur) ) {
-	// 		if(!have_one || (cur.getT() < i.getT())) {
-	// 			i = cur;
-	// 			have_one = true;
-	// 		}
-	// 	}
-	// }
-
-	have_one = kdTree->findIntersection(r, i, tmin, tmax, have_one);
+	
+	if(traceUI->kdSwitch()) {
+		kdTree->findIntersection(r, i, tmin, tmax, have_one);
+	} else {
+		for(const auto& obj : objects) {
+			isect cur;
+			if( obj->intersect(r, cur) ) {
+				if(!have_one || (cur.getT() < i.getT())) {
+					i = cur;
+					have_one = true;
+				}
+			}
+		}	
+	}
+		
 
 	if(!have_one)
 		i.setT(1000.0);
@@ -165,10 +174,10 @@ void Scene::createKdTree(int depth, int leafsize) {
 	}
 
 	// KdTree<Geometry> kdTree(objectsList, bounds(), depth, leafsize);
-	std::cout << "building tree of size: " << objectsList.size() << std::endl;
-	long long size = 0;
-	kdTree = KdTree<Geometry>::buildTree(objectsList, bounds(), depth, leafsize, size);
-	std::cout << "tree size: " << size << std::endl;
+	// std::cout << "building tree of size: " << objectsList.size() << std::endl;
+	// long long size = 0;
+	kdTree = KdTree<Geometry>::buildTree(objectsList, bounds(), depth, leafsize);
+	// std::cout << "tree size: " << size << std::endl;
 }
 
 

@@ -87,20 +87,23 @@ bool Trimesh::intersectLocal(ray& r, isect& i) const
 bool TrimeshFace::intersect(ray& r, isect& i) const
 {
 	// std::cout << "running intersect!" << std::endl;
-	if(!traceUI->kdSwitch()) {
-		return intersectLocal(r, i);
-	}
 
-	KdTree<Geometry> *kdTree = this->getScene()->getKdTree();
-	double tmin;
-	double tmax;
-	bool found_one;
-	if(kdTree->findIntersection(r, i, tmin, tmax, found_one)) {
-		// std::cout << "running narrow phase" << std::endl;
-		return intersectLocal(r, i);
-	}
-	// std::cout << "failed broadphase" << std::endl;
-	return false;
+	return intersectLocal(r, i);
+
+	// if(!traceUI->kdSwitch()) {
+	// 	return intersectLocal(r, i);
+	// }
+
+	// KdTree<Geometry> *kdTree = this->getScene()->getKdTree();
+	// double tmin;
+	// double tmax;
+	// bool found_one;
+	// if(kdTree->findIntersection(r, i, tmin, tmax, found_one)) {
+	// 	// std::cout << "running narrow phase" << std::endl;
+	// 	return intersectLocal(r, i);
+	// }
+	// // std::cout << "failed broadphase" << std::endl;
+	// return false;
 }
 
 // Intersect ray r with the triangle abc.  If it hits returns true,
