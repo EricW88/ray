@@ -1,12 +1,12 @@
+#pragma once
+
 #include <float.h>
 #include <glm/glm.hpp>
 #include <vector>
 #include <iostream>
 
 #include "bbox.h"
-
-#pragma once
-
+#include "ray.h"
 // Note: you can put kd-tree here
 
 // class BoundingBox;
@@ -23,7 +23,7 @@ class Plane {
 
         bool isLeft() {return left;}
 
-        bool operator < (const Plane& other) const;
+        bool operator < (const Plane& other) const{return glm::dot(axis, position) < glm::dot(other.axis, other.position);}
     private:
         glm::dvec3 axis;
         glm::dvec3 position;

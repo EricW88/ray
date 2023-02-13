@@ -12,6 +12,9 @@
 
 using namespace std;
 
+class kdTree;
+class Plane;
+
 extern TraceUI* traceUI;
 
 double intersectCount = 0;

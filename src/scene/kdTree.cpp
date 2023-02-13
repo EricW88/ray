@@ -1,9 +1,6 @@
 #include "kdTree.h"
 #include <iostream>
-
-bool Plane::operator < (const Plane& other) const {
-    return glm::dot(axis, position) < glm::dot(other.axis, other.position);
-}
+#include <algorithm>
 
 template <typename Objects>
 KdTree<Objects>* KdTree<Objects>::buildTree(std::vector<Objects*> objList, BoundingBox bbox, int depth, int leafSize) {
